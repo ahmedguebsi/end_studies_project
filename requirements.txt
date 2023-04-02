@@ -1,0 +1,14 @@
+ipykernel
+scipy
+numpy
+mne
+pandas
+matplotlib
+sklearn
+mne[data]
+tqdm
+PyQt5
+EntropyHub
+ipykernel
+antropy
+tabulate
