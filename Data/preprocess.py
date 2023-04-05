@@ -1,7 +1,4 @@
-"""
-Normalized the dataframe.
-Features will be scaled to [0,1]
-"""
+""" Normalized the dataframe.Features will be scaled to [0,1] """
 
 import argparse
 import sys
@@ -49,7 +46,6 @@ def df_replace_values(df: DataFrame):
     Standard scaler scales for each column independently.
     Scale per person
     """
-
     df = df.replace([np.inf, -np.inf], np.nan)
     df = df.fillna(0)
     return df
