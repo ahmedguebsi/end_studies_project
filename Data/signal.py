@@ -50,8 +50,8 @@ class SignalPreprocessorException(Exception):
     pass
 
 
-class SignalPreprocessorSignalNotSet(SignalPreprocessorException):
-    pass
+#class SignalPreprocessorSignalNotSet(SignalPreprocessorException):
+    #pass
 
 
 class SignalPreprocessorInvalidName(SignalPreprocessorException):

@@ -147,10 +147,10 @@ glimpse_df(df)
 df.to_pickle(str(Path(output_dir, ".raw_df.pkl")))
 
 """Save to files"""
-save_df(df, is_complete_dataset, output_dir, "raw", train_metadata)
+#save_df(df, is_complete_dataset, output_dir, "raw", train_metadata)
 glimpse_df(df)
 df = df_replace_values(df)
-save_df(df, is_complete_dataset, output_dir, "clean", train_metadata)
+#save_df(df, is_complete_dataset, output_dir, "clean", train_metadata)
 
 if __name__ == "__main__":
     pass
