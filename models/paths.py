@@ -5,7 +5,8 @@ from os import getcwd
 from pathlib import Path
 
 PATH_CWD = Path(getcwd())
-PATH_DATA = Path(PATH_CWD, "data")
+print(PATH_CWD)
+PATH_DATA = Path(PATH_CWD, "Data")
 PATH_DATASET = Path(PATH_DATA, "dataset.ignoreme")
 PATH_DATAFRAME = Path(PATH_DATA, "dataframes")
 PATH_DATASET_MAT = Path(PATH_DATASET, "mat")

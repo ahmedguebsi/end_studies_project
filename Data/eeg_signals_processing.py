@@ -1,25 +1,39 @@
 from math import floor
-from typing import Callable, List, Optional, Tuple, TypedDict, Union
+from typing import List
 
-import numpy as np
+
 from mne import Epochs
 from mne.io import read_raw_cnt
 from mne.io.base import BaseRaw
 from pandas import DataFrame
 
+from environment import (FATIGUE_STR, FREQ, USE_REREF, LOW_PASS_FILTER_RANGE_HZ,
+                         NOTCH_FILTER_HZ, SIGNAL_OFFSET,
+                         channels_good, driving_states, feature_names,
+                         get_brainwave_bands, NUM_USERS)
+from Utils.features_extraction import FeatureExtractor
+#from utils_file_saver import save_df
+from helper_functions import (get_cnt_filename, glimpse_df, serialize_functions)
+from signal import SignalPreprocessor
 
-from preprocess import df_replace_values
-from environment import (FATIGUE_STR, FREQ, LOW_PASS_FILTER_RANGE_HZ,
-                       NOTCH_FILTER_HZ, NUM_USERS,
-                       SIGNAL_DURATION_SECONDS_DEFAULT, SIGNAL_OFFSET,
-                       channels_good, driving_states, feature_names,
-                       get_brainwave_bands)
-from feature_extraction import FeatureExtractor
-from utils_file_saver import save_df
-from helper_functions import (get_cnt_filename, glimpse_df, is_arg_default,
-                             serialize_functions)
-from paths import PATH_DATAFRAME, PATH_DATASET_CNTg
-from utils_signal import SignalPreprocessor
+
+
+
+
+driver_num = NUM_USERS
+signal_duration = SIGNAL_DURATION_SECONDS_DEFAUL
+epoch_events_num = FREQ
+output_dir = r"C:\Users\Ahmed Guebsi\Desktop\Data_test"
+use_brainbands = False
+use_reref = USE_REREF
+channels_ignore=[]
+#channels = list(set(channels_good) - set(channels_ignore))
+channels = channels_good
+
+#is_complete_dataset = not any(map(lambda arg_name, parser=parser, args=args: is_arg_default(arg_name, parser, args), ["driver_num", "signal_duration", "epoch_events_num", "channels_ignore"]))
+train_metadata = {"is_complete_dataset": is_complete_dataset, "brains": use_brainbands, "reref": use_reref}
+
+is_complete_dataset=True
 
 
 def load_clean_cnt(filename: str, channels: List[str]):
@@ -111,19 +125,6 @@ for driver_id, driving_state in tqdm(list(product(range(0, driver_num), driving_
         freq_filter_range = proc_context["freq_filter_range"]
         feature_extractor.fit(signal_processed, FREQ)
         for epoch_id in tqdm(range(0, signal_duration)):
-            """
-            Filter the dataframe rows by selecting the rows with epoch_id.
-            get_features caculates all features for a given epoch
-                * each feature is caculated for all channels
-                * for 30 channels the shape of a feature will be (30,) (if feature is e.g. float)
-                * feature_dict dictionary contains all features
-            Features are flattened to a combination (channel, feature, preprocess procedure) which defines a single column
-                * e.g. F4_std_standard
-                * total number of columns is (len(features) * len(channels) * len(preprocess_procedures))
-            For loop appends the result to each column. Effectively, it's itterating through the feature array (30,) and appends each float to appropriate column
-                * once the for loop is completed, an appropriate result will be appended to each column
-            """
-
             df_epoch = df.loc[df["epoch"] == epoch_id, channels].head(epoch_events_num)
             feature_dict = feature_extractor.get_features(df_epoch, epoch_id=epoch_id, freq_filter_range=freq_filter_range)
 
@@ -135,6 +136,21 @@ for driver_id, driving_state in tqdm(list(product(range(0, driver_num), driving_
                 df_dict["driver_id"].append(driver_id)
                 df_dict["is_fatigued"].append(is_fatigued)
 
+
+
+"""Create dataframe from rows and columns"""
+df = DataFrame.from_dict(df_dict)
+df["is_fatigued"] = df["is_fatigued"].astype(int)
+df["driver_id"] = df["driver_id"].astype(int)
+df["epoch_id"] = df["epoch_id"].astype(int)
+glimpse_df(df)
+df.to_pickle(str(Path(output_dir, ".raw_df.pkl")))
+
+"""Save to files"""
+save_df(df, is_complete_dataset, output_dir, "raw", train_metadata)
+glimpse_df(df)
+df = df_replace_values(df)
+save_df(df, is_complete_dataset, output_dir, "clean", train_metadata)
 
 if __name__ == "__main__":
     pass

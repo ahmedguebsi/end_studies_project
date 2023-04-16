@@ -10,11 +10,13 @@ For example: electrode F4 might perform well for drivers (3,4) but not so well f
 
 from typing import Dict, List
 
-from pandas.core.frame import DataFrame
+#from pandas.core.frame import DataFrame
 from sklearn.metrics import accuracy_score
 from sklearn.svm import SVC
 from tqdm import tqdm
+from environment import channels_good
 
+from train_models import split_generator
 
 def caculate_mode_all(model: SVC, X_train_org: DataFrame, X_test_org: DataFrame, y_train_org: DataFrame, y_test_org: DataFrame, channels_good: list) -> List:
     """
@@ -59,6 +61,7 @@ def caculate_mode_all(model: SVC, X_train_org: DataFrame, X_test_org: DataFrame,
             y_test_pred = model.predict(X_test)
 
             acc_ij = accuracy_score(y_test, y_test_pred)
+            print(acc_ij)
             sum_elements.append(acc_ij + channel_acc[channel_a_name] - channel_acc[channel_b_name])
 
         sum_expression = sum(sum_elements)
@@ -67,3 +70,14 @@ def caculate_mode_all(model: SVC, X_train_org: DataFrame, X_test_org: DataFrame,
         channel_weights[channel_a_name] = weight
 
     return sorted(channel_weights.items(), key=lambda x: x[1], reverse=True)
+
+
+if __name__ == "__main__":
+    df_path = r"C:\Users\Ahmed Guebsi\Downloads\complete-clean-2022-02-26-is_complete_dataset_true___brains_true___reref_false.pickle"
+    df: DataFrame = read_pickle(df_path)
+    training_columns = list(df.iloc[:, df.columns.str.contains(training_columns_regex)].columns)
+    X = df.drop("is_fatigued", axis=1)
+    y = df.loc[:, "is_fatigued"]
+    X_train, X_test, y_train, y_test= split_generator(X, y)
+    model = SVC(kernel="rbf", C=C, gamma=gamma)
+    caculate_mode_all(model, X_train, X_test, y_train, y_test, channels_good)

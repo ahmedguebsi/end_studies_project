@@ -15,9 +15,9 @@ from sklearn.model_selection import (GridSearchCV, LeaveOneGroupOut,
                                      train_test_split)
 from sklearn.preprocessing import MinMaxScaler
 
-from utils_env import training_columns_regex
-from utils_file_saver import get_decorated_filepath, save_figure, save_obj
-from utils_paths import PATH_DATAFRAME
+from environment import training_columns_regex
+#from utils_file_saver import get_decorated_filepath, save_figure, save_obj
+from paths import PATH_DATAFRAME
 
 
 def df_filter_columns_by_std(X_train: Series, X_test: Series, std=0.01):
@@ -55,17 +55,14 @@ if __name__ == "__main__":
     set_option("display.max_columns", None)
     warnings.filterwarnings("ignore")
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--df", metavar="df", type=str, help="Load precaculated entropy dataframe (the one that isn't cleaned and normalized)")
-    parser.add_argument("--output-dir", metavar="dir", type=str, help="Directory where dataframe and npy files will be saved", default=PATH_DATAFRAME)
-    args = parser.parse_args()
 
-    df_path = Path(args.df)
-    output_dir = Path(args.output_dir)
-
+    df_path = r"C:\Users\Ahmed Guebsi\Downloads\complete-raw-2022-02-26-is_complete_dataset_true___brains_true___reref_false.pickle"
+    output_dir= r"C:\Users\Ahmed Guebsi\Desktop\Data_test"
     df: DataFrame = read_pickle(df_path)
+    print(df.head())
     training_columns = list(df.iloc[:, df.columns.str.contains(training_columns_regex)].columns)
     df = df_replace_values(df)
+    print(df.head())
 
     basename = df_path.stem.replace("raw", "cleaned2")
     file_saver = lambda df, filepath: DataFrame.to_pickle(df, filepath)

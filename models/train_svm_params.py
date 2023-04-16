@@ -18,21 +18,23 @@ from sklearn.model_selection import LeaveOneGroupOut
 from sklearn.svm import SVC
 from tqdm import tqdm
 
-from model import wide_params
-from preprocess_preprocess_df import split_and_normalize
-from utils_env import NUM_USERS, training_columns_regex
-from utils_functions import get_timestamp, glimpse_df, stdout_to_file
-from utils_paths import PATH_REPORT
+from models import wide_params
+from preprocess import split_and_normalize, df_replace_values
+from environment import NUM_USERS, training_columns_regex
+from helper_functions import get_timestamp, glimpse_df, stdout_to_file
 
-set_option("display.max_columns", None)
-parser = argparse.ArgumentParser()
-parser.add_argument("--df", metavar="file", required=True, type=str, help="Dataframe file used for training")
-parser.add_argument("-r", "--output-report", metavar="dir", required=False, type=str, help="Directory where report file will be created.", default=PATH_REPORT)
-args = parser.parse_args()
-stdout_to_file(Path(args.output_report, "-".join(["svm-parameters", get_timestamp()]) + ".txt"))
 
-df: DataFrame = read_pickle(args.df)
+
+#df_path = r"C:\Users\Ahmed Guebsi\Downloads\complete-raw-2022-02-26-is_complete_dataset_true___brains_true___reref_false.pickle"
+df_path=r"C:\Users\Ahmed Guebsi\Downloads\complete-clean-2022-02-26-is_complete_dataset_true___brains_true___reref_false.pickle"
+output_dir = r"C:\Users\Ahmed Guebsi\Desktop\Data_test"
+#stdout_to_file(Path(args.output_report, "-".join(["svm-parameters", get_timestamp()]) + ".txt"))
+
+df: DataFrame = read_pickle(df_path)
+print(df.head())
 training_columns = list(df.iloc[:, df.columns.str.contains(training_columns_regex)].columns)
+print(training_columns)
+#df_replace_values(df)
 X = df.loc[:, ~df.columns.isin(["is_fatigued"])]
 X = X[X.columns[X.max() != -1]]  # remove constant attributes
 y = df.loc[:, "is_fatigued"]

@@ -19,7 +19,7 @@ from pandas import DataFrame, Series
 from scipy import signal
 from scipy.signal.spectral import periodogram
 
-from utils_env import FREQ
+from environment import FREQ
 
 
 def fuzzy_entropy(x):

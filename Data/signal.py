@@ -9,10 +9,6 @@ from pandas import DataFrame
 
 
 def load_clean_cnt(filename: str, channels: List[str]):
-    """
-    Load Raw CNT (EEG signal) and pick given channels
-    """
-
     cnt = read_raw_cnt(filename, preload=True, verbose=False)
     print("Bad channels found by MNE:", cnt.info["bads"])
     cnt.pick_channels(channels)
@@ -20,10 +16,6 @@ def load_clean_cnt(filename: str, channels: List[str]):
 
 
 def signal_crop(signal: BaseRaw, freq: float, signal_offset: float, signal_duration_wanted: float):
-    """
-    Reduces signal's lenght by cropping it
-    """
-
     signal_total_duration = floor(len(signal) / freq)
     start = signal_total_duration - signal_duration_wanted + signal_offset
     end = signal_total_duration + signal_offset
@@ -31,27 +23,14 @@ def signal_crop(signal: BaseRaw, freq: float, signal_offset: float, signal_durat
 
 
 def signal_filter_notch(signal: BaseRaw, filter_hz):
-    """
-    Apply notch filter to the signal
-    https://en.wikipedia.org/wiki/Band-stop_filter
-    """
     return signal.copy().notch_filter(np.arange(filter_hz, (filter_hz * 5) + 1, filter_hz))
 
 
 def low_high_pass_filter(signal: BaseRaw, l_freq, h_freq):
-    """
-    Filters the signal with lower and higher pass-band edge by using zero-phase filtering
-    https://mne.tools/stable/auto_tutorials/preprocessing/25_background_filtering.html#filtering-basics
-    """
-
     return signal.copy().filter(l_freq=l_freq, h_freq=h_freq)
 
 
 def epochs_to_dataframe(epochs: Epochs, drop_columns=["time", "condition"]):
-    """
-    Converts to dataframe and drops unnecessary columns
-    """
-
     df: DataFrame = epochs.to_data_frame(scalings=dict(eeg=1))
     df = df.drop(drop_columns, axis=1)
     return df
@@ -100,10 +79,7 @@ class SignalPreprocessor:
         return preprocessor_procedure, procedure_name, procedure_context
 
     def get_preprocessed_signals(self):
-        """
-        Generator which yields all preprocessed procedures applied to the fitted signal.
-        Returns: preprocessed signal, procedure name, procedure's context
-        """
+        """ Generator which yields all preprocessed procedures applied to the fitted signal."""
         self._check_signal_fit()
         if self.preprocess_procedures == []:
             preprocessor_procedure, procedure_name, procedure_context = self._get_procedure_dict_tripplet(self.DEFAULT_PREPROCESSING_PROCEDURE)
@@ -116,9 +92,6 @@ class SignalPreprocessor:
             yield signal_preprocessed, procedure_name, procedure_context
 
     def register_preprocess_procedure(self, procedure_name: str, procedure, context: SignalPreprocessorContext = {}):
-        """
-        Register a preprocess procedure
-        """
         if not isinstance(procedure_name, str):
             raise SignalPreprocessorInvalidName("Procedure name has to be a string.")
 
@@ -127,9 +100,6 @@ class SignalPreprocessor:
         return procedure_dict
 
     def unregister_preprocess_procedure(self, procedure_name):
-        """
-        Unregister a preprocess procedure
-        """
         return self.preprocess_procedures.pop(procedure_name, None)
 
     def clear_preprocess_procedures(self):
