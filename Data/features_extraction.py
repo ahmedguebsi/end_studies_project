@@ -8,13 +8,11 @@ FE - Fuzzy entropy - stable results for different parameters. Best noise resista
 
 """
 from math import ceil, floor
-from typing import Callable, Dict, List, Optional, Tuple, TypedDict
+from typing import Dict, List, Optional, Tuple, TypedDict
 
 import antropy as an
 import EntropyHub as eh
 import numpy as np
-import pandas as pd
-from mne import make_fixed_length_epochs, time_frequency
 from pandas import DataFrame, Series
 from scipy import signal
 from scipy.signal.spectral import periodogram

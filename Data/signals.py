@@ -50,8 +50,8 @@ class SignalPreprocessorException(Exception):
     pass
 
 
-#class SignalPreprocessorSignalNotSet(SignalPreprocessorException):
-    #pass
+class SignalPreprocessorSignalNotSet(SignalPreprocessorException):
+    pass
 
 
 class SignalPreprocessorInvalidName(SignalPreprocessorException):
@@ -111,4 +111,4 @@ class SignalPreprocessor:
 
 
 if __name__ == "__main__":
-    pass
+    print("success")

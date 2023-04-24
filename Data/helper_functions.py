@@ -1,6 +1,4 @@
-"""
-Utility functions
-"""
+
 import argparse
 import re
 import sys
@@ -35,7 +33,6 @@ def dict_apply_procedture(old_dict: Dict[str, T], procedure) -> Dict[str, T]:
 
 
 def isnull_any(df):
-    # Null and NaN are the same in Pandas :)
     return df.isnull().any()
 
 
@@ -82,16 +79,11 @@ def glimpse_df(df: DataFrame):
 
 
 def powerset(iterable):
-    "[1,2,3] --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"
     s = list(iterable)
     return chain.from_iterable(combinations(s, r) for r in range(0, len(s) + 1))
 
 
 def get_dictionary_leaves(dictionary: dict):
-    """
-    {a: 3, b: {c: 3, d: 4}} --> [[a,3], [c,3], [d,4]]
-    """
-
     def get_leaves(pair):
         key, value = pair
         if type(value) is dict:
@@ -105,46 +97,18 @@ def get_dictionary_leaves(dictionary: dict):
 
 
 def dict_to_byte_metadata(dictionary: dict):
-    """
-    {a:3, b:2, c:test} ---> "a 3, b 2, c test"
-    """
     pairs = get_dictionary_leaves(dictionary)
     return ",".join(map(lambda key_value: " ".join([str(key_value[0]), str(key_value[1])]), pairs)).encode()
 
 
 def dict_to_string(dictionary: dict):
-    """
-    {"accuracy": 73, "method": "net"} ---> "accuracy_73___method_net"
-    """
     pairs = get_dictionary_leaves(dictionary)
     if pairs is None:
         return ""
     return "___".join(map(lambda key_value: "_".join([str(key_value[0]), str(key_value[1])]), pairs))
 
 
-class SocketConcatenator(object):
-    """
-    Class adds an abillity to write to mulitple sockets
-    For example, write both to stdout and to a file
-    """
-
-    def __init__(self, *files):
-        self.files = files
-
-    def write(self, obj):
-        for f in self.files:
-            f.write(obj)
-            f.flush()
-
-    def flush(self):
-        for f in self.files:
-            f.flush()
-
-
 def stdout_to_file(file: Path):
-    """
-    Pipes standard input to standard input and to a file.
-    """
     print()
     print("Standard output piped to file:")
     print(file)
@@ -159,10 +123,6 @@ def print_report(file: Path, regex_filter):
     filtered_lines = [s for s in readlines if regex.match(s)]
     for line in filtered_lines:
         print(line.strip())
-
-
-def flatten(t):
-    return [item for sublist in t for item in sublist]
 
 
 if __name__ == "__main__":
