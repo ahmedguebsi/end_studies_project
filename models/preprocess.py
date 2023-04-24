@@ -1,24 +1,10 @@
-""" Normalized the dataframe.Features will be scaled to [0,1] """
-
-import argparse
-import sys
 import warnings
-from itertools import product
-from pathlib import Path
-
-import matplotlib.pyplot as plt
 import numpy as np
 from pandas import DataFrame, Series, read_pickle, set_option
-from sklearn.metrics import ConfusionMatrixDisplay
-from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.model_selection import (GridSearchCV, LeaveOneGroupOut,
-                                     train_test_split)
+from sklearn.model_selection import (train_test_split)
 from sklearn.preprocessing import MinMaxScaler
 
 from environment import training_columns_regex
-#from utils_file_saver import get_decorated_filepath, save_figure, save_obj
-from paths import PATH_DATAFRAME
-
 
 def df_filter_columns_by_std(X_train: Series, X_test: Series, std=0.01):
     X_test = X_test.loc[:, X_train.std() > 0.1]
@@ -41,11 +27,6 @@ def split_and_normalize(X: Series, y: Series, test_size: float, columns_to_scale
 
 
 def df_replace_values(df: DataFrame):
-    """
-    Normalizes dataframe by replacing values and scaling them.
-    Standard scaler scales for each column independently.
-    Scale per person
-    """
     df = df.replace([np.inf, -np.inf], np.nan)
     df = df.fillna(0)
     return df

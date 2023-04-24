@@ -1,29 +1,14 @@
-"""
-Finds the best C and gamma hyperparameters for SVM model by using Leave One Group out approach.
 
-A single group of rows is defined by participant's id (driver_id).
-Effectively, this is LOO approach where 1 participant is left for validation and other 11 are used for training the model
-
-Load the dataset with the --df argument
-Calculate the accuracy for each hyperparameter pair
-"""
-import argparse
 from itertools import product
-from pathlib import Path
 
 from pandas import DataFrame, read_pickle
-from pandas._config.config import set_option
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import LeaveOneGroupOut
 from sklearn.svm import SVC
 from tqdm import tqdm
 
 from models import wide_params
-from preprocess import split_and_normalize, df_replace_values
 from environment import NUM_USERS, training_columns_regex
-from helper_functions import get_timestamp, glimpse_df, stdout_to_file
-
-
 
 #df_path = r"C:\Users\Ahmed Guebsi\Downloads\complete-raw-2022-02-26-is_complete_dataset_true___brains_true___reref_false.pickle"
 df_path=r"C:\Users\Ahmed Guebsi\Downloads\complete-clean-2022-02-26-is_complete_dataset_true___brains_true___reref_false.pickle"

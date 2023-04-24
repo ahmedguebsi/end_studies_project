@@ -1,49 +1,28 @@
 """
-Load the dataset with the --df argument
-Create all possible combinations of entropies: [('PE'), ('AE'), ('SE'), ('FE'), ('PE', 'AE'), ('PE', 'SE'), ('PE', 'FE'), ('AE', 'SE'), ('AE', 'FE'), ('SE', 'FE'), ('PE', 'AE', 'SE'), ('PE', 'AE', 'FE'), ('PE', 'SE', 'FE'), ('AE', 'SE', 'FE'), ('PE', 'AE', 'SE', 'FE')]
+Create all possible combinations of entropies
 Train GridSearch SVM model on each entropy combination
 Find out which entropy combinations performs the best
-Create a report file
-
-------------------------------------------
-
-Before training the models with the whole dataset, all possible combinations of entropy will be explored to find the combination which produces the highest accuracy on the test dataset. 15 possible entropy combinations are: [('PE'), ('AE'), ('SE'), ('FE'), ('PE', 'AE'), ('PE', 'SE'), ('PE', 'FE'), ('AE', 'SE'), ('AE', 'FE'), ('SE', 'FE'), ('PE', 'AE', 'SE'), ('PE', 'AE', 'FE'), ('PE', 'SE', 'FE'), ('AE', 'SE', 'FE'), ('PE', 'AE', 'SE', 'FE')]
-
-The best combination of entropy features will be used to train 4 already defined models. This step will also show how much each entropy might contribute to importance of predicting participant's driving state.
-
-It's assumed that combination with all 4 entropies will produce the highest prediction accuracy on the test dataset simply because model has more data to work with.
 """
 
-import argparse
 from itertools import product
-from pathlib import Path
 
 from pandas import DataFrame, read_pickle
-from pandas._config.config import set_option
 from sklearn.metrics import classification_report
 from tqdm import tqdm
 
 from models import model_svc
 from preprocess import split_and_normalize
 from environment import entropy_names, training_columns_regex
-from helper_functions import (get_dictionary_leaves, get_timestamp, powerset,
-                             stdout_to_file)
-from paths import PATH_REPORT
+from helper_functions import (get_dictionary_leaves, powerset)
 
-set_option("display.max_columns", None)
-parser = argparse.ArgumentParser()
-parser.add_argument("--df", metavar="file", required=True, type=str, help="Dataframe file used for training")
-parser.add_argument("-r", "--output-report", metavar="dir", required=False, type=str, help="Directory where report file will be created.", default=PATH_REPORT)
-args = parser.parse_args()
-stdout_to_file(Path(args.output_report, "-".join(["best-entropies", get_timestamp()]) + ".txt"))
-
-
-df: DataFrame = read_pickle(args.df)
+df_path=r"C:\Users\Ahmed Guebsi\Downloads\complete-clean-2022-02-26-is_complete_dataset_true___brains_true___reref_false.pickle"
+output_dir = r"C:\Users\Ahmed Guebsi\Desktop\Data_test"
+df: DataFrame = read_pickle(df_path)
 X = df.loc[:, ~df.columns.isin(["is_fatigued"])]
 y = df.loc[:, "is_fatigued"]
 
 training_columns = list(df.iloc[:, df.columns.str.contains(training_columns_regex)].columns)
-X_train_org, X_test_org, y_train, y_test = split_and_normalize(X, y, training_columns, test_size=0.5)
+X_train_org, X_test_org, y_train, y_test = split_and_normalize(X, y, 0.5, training_columns)
 
 entropy_excluded_powerset = list(powerset(entropy_names))[:-1]  # exclude last element (PE, AE, FE, SE)
 models = [model_svc]

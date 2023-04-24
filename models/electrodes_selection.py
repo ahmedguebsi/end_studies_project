@@ -1,12 +1,3 @@
-"""
-Caculate significant electrodes for the whole dataset
-
-In this method weights for each electrode is caculated with the whole dataset. Instead of filtering drivers they are all taken into account when caculating the weight for a specific electrode. These **weights will generally be lower** than weights in the **Method 1**.
-
-In practice, each driver has it's own significant electrodes and those electrodes don't have to be significant for other drivers. Significant electrodes are not significant for all drivers.
-
-For example: electrode F4 might perform well for drivers (3,4) but not so well for the rest of the drivers (1,2,5,...,12). Because the electrode F4 has little significance in predicting the state for drivers (1,2,5,...,12) the accuracy will be low for those drivers but high for the other drivers (3,4). Since validation is performed on all drivers this results in validation disbalance. Even though electrode performs well for only 2 drivers (3,4), resulting in accuracy that's generally low compared to **Method 1** accuracy.
-"""
 
 from typing import Dict, List
 
@@ -19,9 +10,7 @@ from environment import channels_good
 from train_models import split_generator
 
 def caculate_mode_all(model: SVC, X_train_org: DataFrame, X_test_org: DataFrame, y_train_org: DataFrame, y_test_org: DataFrame, channels_good: list) -> List:
-    """
-    Calculate accuracy for each channel (Acc_i) by training on the whole dataset.
-    """
+    """ Calculate accuracy for each channel (Acc_i) by training on the whole dataset """
 
     channel_acc: Dict[str, float] = {}
 
@@ -36,17 +25,13 @@ def caculate_mode_all(model: SVC, X_train_org: DataFrame, X_test_org: DataFrame,
         y_test_pred = model.predict(X_test)
         channel_acc[ch] = accuracy_score(y_test, y_test_pred)
 
-    """
-    Calculate weight for the whole dataset for each channel (V_i).
-    """
+    """ Calculate weight for the whole dataset for each channel (V_i). """
 
     channel_weights = {}
     for channel_a_name in tqdm(channels_good):
         sum_elements = []
         for channel_b_name in channels_good:
-            """
-            Calculate Acc(i,j) and add it to sum expression
-            """
+            """ Calculate Acc(i,j) and add it to sum expression """
             if channel_b_name == channel_a_name:
                 break
 

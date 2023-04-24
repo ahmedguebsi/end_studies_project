@@ -1,22 +1,9 @@
-"""
-Load the dataset with the --df argument
-Use all entropy features during the training phase
-Train each model via grid serach method:
-    - SVC (SVM)
-    - MLPClassifier (Multi-layer Perceptron classifier)
-    - RandomForestClassifier
-    - KNeighborsClassifier
-Save each model to file (data/models)
-Create an report for each model
-Create a report file
-"""
-import argparse
+
 import warnings
 from datetime import datetime
 from itertools import product
 from pathlib import Path
 
-import matplotlib.pyplot as plt
 from pandas import read_pickle
 from pandas._config.config import set_option
 from pandas.core.frame import DataFrame
@@ -32,7 +19,6 @@ from preprocess import split_and_normalize
 from environment import training_columns_regex
 #from utils_file_saver import TIMESTAMP_FORMAT, save_model
 from helper_functions import glimpse_df, stdout_to_file
-from paths import PATH_MODEL, PATH_REPORT
 
 timestamp = datetime.today()
 warnings.filterwarnings(action="ignore", category=ConvergenceWarning)
@@ -58,7 +44,6 @@ def loo_generator(X, y):
 
 def split_generator(X, y):
     X_train, X_test, y_train, y_test = split_and_normalize(X.loc[:, training_columns], y, test_size=0.5, columns_to_scale=training_columns)
-    # X_train, X_test = df_filter_columns_by_std(X_train, X_test)
     yield X_train, X_test, y_train, y_test
 
 df_path=r"C:\Users\Ahmed Guebsi\Downloads\complete-clean-2022-02-26-is_complete_dataset_true___brains_true___reref_false.pickle"
