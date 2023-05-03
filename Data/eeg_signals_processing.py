@@ -14,13 +14,13 @@ from pandas import DataFrame, set_option
 from tqdm import tqdm
 
 from environment import (FATIGUE_STR, FREQ, USE_REREF, LOW_PASS_FILTER_RANGE_HZ,
-                              NOTCH_FILTER_HZ, SIGNAL_OFFSET,
+                              NOTCH_FILTER_HZ, SIGNAL_OFFSET,sig_channels,
                               channels_good, driving_states, feature_names,
                               get_brainwave_bands, NUM_USERS, SIGNAL_DURATION_SECONDS_DEFAULT)
 from features_extraction import FeatureExtractor
-from helper_functions import (get_cnt_filename, glimpse_df, serialize_functions)
+from helper_functions import (get_cnt_filename, glimpse_df, serialize_functions,isnull_any, rows_with_null)
 from signals import SignalPreprocessor
-
+#from preprocess import (df_replace_values)
 import mne
 from mne.preprocessing import ICA
 
@@ -31,9 +31,11 @@ output_dir = r"C:\Users\Ahmed Guebsi\Desktop\Data_test"
 use_brainbands = False
 use_reref = USE_REREF
 channels_ignore=[]
-channels = channels_good
-channels = list(set(channels_good) - set(channels_ignore))
+#channels = channels_good
+#channels = list(set(channels_good) - set(channels_ignore))
 
+channels = sig_channels
+channels = list(set(sig_channels) - set(channels_ignore))
 is_complete_dataset=True
 train_metadata = {"is_complete_dataset": is_complete_dataset, "brains": use_brainbands, "reref": use_reref}
 
@@ -41,6 +43,10 @@ PATH_DATASET_CNT= r"C:\Users\Ahmed Guebsi\Downloads\cnt"
 
 
 
+def df_replace_values(df: DataFrame):
+    df = df.replace([np.inf, -np.inf], np.nan)
+    df = df.fillna(0)
+    return df
 
 def apply_ica(cnt_file):
     # Read in EEG data
@@ -142,7 +148,7 @@ for driver_id, driving_state in tqdm(list(product(range(0, driver_num), driving_
         #epochs = mne.Epochs(signal_processed, epochs, tmin=0, tmax=1, baseline=None, detrend=1, preload=True)
         print(type(epochs))
         # Remove eye blink artifacts using ICA
-        ica = mne.preprocessing.ICA(n_components=20, random_state=42)
+        ica = mne.preprocessing.ICA(n_components=5, random_state=42)
         ica.fit(epochs)
 
         # identified using visual inspection
@@ -176,7 +182,13 @@ df["is_fatigued"] = df["is_fatigued"].astype(int)
 df["driver_id"] = df["driver_id"].astype(int)
 df["epoch_id"] = df["epoch_id"].astype(int)
 glimpse_df(df)
-df.to_pickle(str(Path(output_dir, ".raw_df.pkl")))
+print(isnull_any(df))
+print(rows_with_null(df))
+df = df_replace_values(df)
+print(isnull_any(df))
+print(rows_with_null(df))
+df.to_pickle(str(Path(output_dir, ".clean_raw_df.pkl")))
+
 
 
 if __name__ == "__main__":

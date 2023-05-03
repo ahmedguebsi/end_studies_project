@@ -18,7 +18,7 @@ from models import model_knn, model_mlp, model_rfc, model_svc
 from preprocess import split_and_normalize
 from environment import training_columns_regex
 #from utils_file_saver import TIMESTAMP_FORMAT, save_model
-from helper_functions import glimpse_df, stdout_to_file
+from helper_functions import (get_cnt_filename, glimpse_df, serialize_functions,isnull_any, rows_with_null)
 
 timestamp = datetime.today()
 warnings.filterwarnings(action="ignore", category=ConvergenceWarning)
@@ -26,7 +26,7 @@ set_option("display.max_columns", None)
 
 TIMESTAMP_FORMAT = "%Y-%m-%d-%H-%M-%S"
 output_dir = r"C:\Users\Ahmed Guebsi\Desktop\Data_test"
-stdout_to_file(Path(output_dir, "-".join(["train-models", timestamp.strftime(TIMESTAMP_FORMAT)]) + ".txt"))
+#stdout_to_file(Path(output_dir, "-".join(["train-models", timestamp.strftime(TIMESTAMP_FORMAT)]) + ".txt"))
 
 
 
@@ -46,15 +46,22 @@ def split_generator(X, y):
     X_train, X_test, y_train, y_test = split_and_normalize(X.loc[:, training_columns], y, test_size=0.5, columns_to_scale=training_columns)
     yield X_train, X_test, y_train, y_test
 
-df_path=r"C:\Users\Ahmed Guebsi\Downloads\complete-clean-2022-02-26-is_complete_dataset_true___brains_true___reref_false.pickle"
+#df_path=r"C:\Users\Ahmed Guebsi\Downloads\complete-clean-2022-02-26-is_complete_dataset_true___brains_true___reref_false.pickle"
+df_path=r"C:\Users\Ahmed Guebsi\Desktop\Data_test\.clean_raw_df.pkl"
 df: DataFrame = read_pickle(df_path)
+print(isnull_any(df))
+#glimpse_df(df)
+print(rows_with_null(df))
+
 training_columns = list(df.iloc[:, df.columns.str.contains(training_columns_regex)].columns)
 X = df.drop("is_fatigued", axis=1)
 y = df.loc[:, "is_fatigued"]
 
 strategies = {"leaveoneout": loo_generator, "split": split_generator}
 scorings = ["f1"]
-models = [model_svc, model_rfc, model_mlp, model_knn]
+#models = [model_svc, model_rfc, model_mlp, model_knn]
+models = [model_mlp]
+
 training_generators = map(lambda strategy_name: (strategy_name, strategies[strategy_name]),strategies)
 
 for (training_generator_name, training_generator), model, scoring in tqdm(list(product(training_generators, models, scorings)), desc="Training model"):
@@ -97,5 +104,5 @@ for (training_generator_name, training_generator), model, scoring in tqdm(list(p
     for params, mean, std in map(lambda x: (x[0], x[1]["mean"], x[1]["std"]), sorted(params_dict.items(), key=lambda x: x[1]["mean"], reverse=True)):
         print("%0.6f (+/-%0.6f) for %r" % (mean, std * 2, dict(params)))
 
-
-glimpse_df(df)
+stdout_to_file(Path(output_dir, "-".join(["train-models", timestamp.strftime(TIMESTAMP_FORMAT)]) + ".txt"))
+#glimpse_df(df)

@@ -9,6 +9,9 @@ from tqdm import tqdm
 
 from models import wide_params
 from environment import NUM_USERS, training_columns_regex
+from helper_functions import (get_cnt_filename, glimpse_df, serialize_functions,isnull_any, rows_with_null)
+from preprocess import (df_replace_values)
+
 
 #df_path = r"C:\Users\Ahmed Guebsi\Downloads\complete-raw-2022-02-26-is_complete_dataset_true___brains_true___reref_false.pickle"
 df_path=r"C:\Users\Ahmed Guebsi\Downloads\complete-clean-2022-02-26-is_complete_dataset_true___brains_true___reref_false.pickle"
@@ -17,6 +20,11 @@ output_dir = r"C:\Users\Ahmed Guebsi\Desktop\Data_test"
 
 df: DataFrame = read_pickle(df_path)
 print(df.head())
+print(isnull_any(df))
+print(rows_with_null(df))
+df = df_replace_values(df)
+print(isnull_any(df))
+print(rows_with_null(df))
 training_columns = list(df.iloc[:, df.columns.str.contains(training_columns_regex)].columns)
 print(training_columns)
 #df_replace_values(df)
